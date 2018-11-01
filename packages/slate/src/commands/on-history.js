@@ -1,5 +1,7 @@
 import omit from 'lodash/omit'
 import { List } from 'immutable'
+import Selection from '../models/selection'
+import Operation from '../models/operation'
 
 /**
  * Commands.
@@ -8,6 +10,7 @@ import { List } from 'immutable'
  */
 
 const Commands = {}
+let opsSkippedSinceSave = 0
 
 /**
  * Save an `operation` into the history.
@@ -21,10 +24,26 @@ Commands.save = (editor, operation) => {
   const { data } = value
   let { save, merge } = editor.tmp
   if (save === false) return
+    console.log(operation.toJS().type)
 
   let undos = data.get('undos') || List()
   const lastBatch = undos.last()
   const lastOperation = lastBatch && lastBatch.last()
+
+  //  Don't snapshot selections unless isFocused is true
+  //  If isFocused is true, this is a programatically set
+  //  selection with all properties and should be saved
+  const isSelection = operation.type === 'set_selection'
+
+  if ((
+    isSelection &&
+    (!operation.properties.isFocused ||
+      (lastOperation && lastOperation.type === 'remove_text'))) 
+    || (isSelection && (operation.properties.isFocused && editor.value.selection.isBlurred))
+  ) {
+    // console.log(operation.text)
+    return
+  }
 
   // If `merge` is non-commital, and this is not the first operation in a new
   // editor, then merge, otherwise merge based on the last operation.
@@ -37,13 +56,35 @@ Commands.save = (editor, operation) => {
   }
 
   // If the `merge` flag is true, add the operation to the last batch.
-  if (merge && lastBatch) {
+  if (merge && lastBatch && !((operation.type === 'insert_text' || operation.type === 'remove_text') && opsSkippedSinceSave > 5)) {
     const batch = lastBatch.push(operation)
     undos = undos.pop()
     undos = undos.push(batch)
+    if (operation.get('text') === ' ') opsSkippedSinceSave += 1
   } else {
     // Otherwise, create a new batch with the operation.
-    const batch = List([operation])
+    const { selection } = value
+    const { anchor, focus } = selection
+
+    let batch
+
+    if (isSelection || ((operation.type === 'insert_text' || operation.type === 'remove_text') && opsSkippedSinceSave < 5)) {
+      batch = List([operation])
+    } else {
+      opsSkippedSinceSave = 0
+      //  Create a selection operation using the editor's current selection
+      const currentSelectionOp = Operation.create({
+        type: 'set_selection',
+        properties: { anchor, focus },
+        selection,
+      })
+
+      //  Sandwich the provided operation with currentSelectionOp.
+      //  This ensures that selection will be correct in both directions.
+      //  Both directions meaning undo or redo.
+      batch = List([currentSelectionOp, operation, currentSelectionOp])
+    }
+
     undos = undos.push(batch)
   }
 

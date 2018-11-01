@@ -83,6 +83,10 @@ class RichTextExample extends React.Component {
    */
 
   render() {
+    const { value } = this.state
+    const { data } = value
+    const undos = data.get('undos')
+    const redos = data.get('redos')
     return (
       <div>
         <Toolbar>
@@ -95,6 +99,16 @@ class RichTextExample extends React.Component {
           {this.renderBlockButton('block-quote', 'format_quote')}
           {this.renderBlockButton('numbered-list', 'format_list_numbered')}
           {this.renderBlockButton('bulleted-list', 'format_list_bulleted')}
+        </Toolbar>
+        <Toolbar>
+          <Button onMouseDown={this.onClickUndo}>
+            <Icon>undo</Icon>
+          </Button>
+          <Button onMouseDown={this.onClickRedo}>
+            <Icon>redo</Icon>
+          </Button>
+          <span>Undos: {undos ? undos.size : 0}</span>
+          <span>Redos: {redos ? redos.size : 0}</span>
         </Toolbar>
         <Editor
           spellCheck
