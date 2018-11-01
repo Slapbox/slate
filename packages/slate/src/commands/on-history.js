@@ -24,7 +24,7 @@ Commands.save = (editor, operation) => {
   const { data } = value
   let { save, merge } = editor.tmp
   if (save === false) return
-    console.log(operation.toJS().type)
+    // console.log(operation.toJS().type)
 
   let undos = data.get('undos') || List()
   const lastBatch = undos.last()
