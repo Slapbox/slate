@@ -1,8 +1,58 @@
 {
-	"folders":
-	[
-		{
-			"path": "."
-		}
-	]
+  "folders":
+  [
+    {
+      "file_exclude_patterns":
+      [
+        "*.css.map",
+        "*.js.map",
+        "*.prod.*",
+        "*.map.*",
+        "*.sublime-workspace",
+        "*.rar",
+        "main.js",
+        "*.asar"
+      ],
+      "file_include_patterns":
+      [
+        "*.scss",
+        "*.js",
+        "*.html",
+        "configureStore.prod.js",
+        "webpack.config.main.prod.js",
+        "webpack.config.renderer.prod.js",
+        "package.json",
+        ".eslintrc",
+        ".babelrc",
+      ],
+      "folder_exclude_patterns":
+      [
+        "node_modules",
+        "dll",
+        "webdll",
+        "dist",
+        "webdist",
+        ".git",
+        ".cache",
+        "custom-packages",
+        "archive",
+        "release",
+        "reports",
+        "flow-typed",
+        "lib"
+      ],
+      "path": "."
+    },
+    {
+      "path": "release"
+    },
+    {
+      "path": "C:\\Projects\\github-masters\\slate"
+    }
+  ],
+  "settings":
+  {
+    "check_contents_on_edit": false,
+    "check_contents_on_save": false,
+  }
 }
