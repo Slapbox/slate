@@ -107,6 +107,12 @@ Commands.undo = editor => {
   const { data } = value
   let redos = data.get('redos') || List()
   let undos = data.get('undos') || List()
+
+  //  Temporary hack to prevent undoing the initial normalization
+  //  which would result in an invalid state
+  //  Because the undo stack starts with 1 operation always
+  if (undos.size <= 1) return
+
   const batch = undos.last()
   if (!batch) return
 
